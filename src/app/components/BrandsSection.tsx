@@ -32,7 +32,7 @@ export default function BrandsSection() {
               Our Brands
             </span>
             <h2 className="font-jakarta font-bold text-foreground leading-tight" style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}>
-              Eight brands.{' '}
+              Ten brands.{' '}
               <span className="text-gradient-warm">One ecosystem.</span>
             </h2>
           </div>
