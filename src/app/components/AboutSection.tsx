@@ -143,7 +143,7 @@ export default function AboutSection() {
               {/* Floating accent card */}
               <div className="absolute -bottom-6 -right-4 md:-right-8 bg-primary text-primary-foreground rounded-2xl p-5 shadow-xl">
                 <div className="font-jakarta font-extrabold text-3xl leading-none">
-                  7
+                  10
                 </div>
 
                 <div className="text-primary-foreground/80 text-xs mt-1 font-medium">
