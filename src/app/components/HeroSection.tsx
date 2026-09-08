@@ -7,14 +7,15 @@ import { heroService } from '@/lib/cms-service';
 const brandChips = [
   { label: 'The Founder', color: '#E05A1E' },
   { label: 'The Banker', color: '#1A6B3A' },
-  { label: 'Boothify', color: '#D97706' },
-  { label: 'O2-Gears', color: '#7C3AED' },
-  { label: 'NetconX', color: '#0369A1' },
-  { label: 'The Educator', color: '#B45309' },
-  { label: 'HoardingBook', color: '#BE185D' },
+{ label: 'Tech Disruptor Media', color: '#BE185D' },
+ { label: 'The Educator', color: '#B45309' }, 
   { label: 'The Autonaut Media', color: '#0F766E' },
+  { label: 'Boothify', color: '#D97706' },   
+  { label: 'O2-Gears', color: '#7C3AED' },  
+  { label: 'NetconX', color: '#0369A1' },  
+   { label: 'All About Campus', color: '#2563EB' },
   { label: 'HoardingDekho', color: '#9333EA' },
-  { label: 'All About Campus', color: '#2563EB' },
+  
 ];
 
 const FALLBACK_IMAGE = 'https://www.bharatnetworkgroup.com/assets/img/about/about.jpeg';
