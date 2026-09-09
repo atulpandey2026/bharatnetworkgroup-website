@@ -164,7 +164,7 @@ export default function HeroSection() {
 
         <div className={`flex flex-wrap gap-x-10 gap-y-4 mb-14 ${mounted ? 'animate-enter delay-500' : 'opacity-0'}`}>
           {[
-            { value: '8', label: 'Brands' },
+            { value: '10', label: 'Brands' },
             { value: '500+', label: 'Clients Served' },
             { value: '10+', label: 'Years of Impact' },
           ].map((s, i) =>
