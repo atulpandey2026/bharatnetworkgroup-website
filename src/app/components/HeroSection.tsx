@@ -140,9 +140,9 @@ export default function HeroSection() {
 
         <div className={`flex flex-col sm:flex-row items-start gap-3 mb-14 ${mounted ? 'animate-enter delay-400' : 'opacity-0'}`}>
           <a
-            href="/#offerings"
+            href="https://events.bharatnetworkgroup.com/"
             className="group inline-flex items-center gap-3 bg-[#E05A1E] text-white pl-6 pr-3 py-3 rounded-full font-semibold text-sm hover:bg-[#c94d16] transition-all duration-300 shadow-[0_0_40px_rgba(224,90,30,0.35)]">
-            Explore Our Offerings
+            Explore our Upcoming Events
             <span className="bg-white/20 p-2 rounded-full transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M7 7h10v10" /><path d="M7 17 17 7" />
