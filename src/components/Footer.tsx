@@ -6,7 +6,7 @@ const footerBrands = [
 { name: 'The Founder Media', href: 'https://thefoundermedia.com/' },
 { name: 'Tech Disruptor Media', href: 'https://techdisruptormedia.com/' },
 { name: 'The Educator Media', href: '#' },
-{ name: 'The Banker Media', href: 'https://b2bmarketmedia.com/' },
+{ name: 'The Banker Media', href: 'https://thebankermedia.com/' },
 { name: 'O2-Gears', href: '#' },
 { name: 'Boothify', href: 'https://boothify.in/' },
 { name: 'NetconX', href: '#' }];
