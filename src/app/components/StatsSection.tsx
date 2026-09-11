@@ -6,7 +6,7 @@ const stats = [
   { end: 50, suffix: '+', label: 'Successful Events', sublabel: 'Pan-India' },
   { end: 100, suffix: 'K+', label: 'Social Media Followers', sublabel: 'Across Platforms' },
   { end: 500, suffix: '+', label: 'Satisfied Clients', sublabel: 'And Growing' },
-  { end: 8, suffix: '', label: 'Brands Under BNG', sublabel: 'One Ecosystem' },
+  { end: 10, suffix: '', label: 'Brands Under BNG', sublabel: 'One Ecosystem' },
 ];
 
 function CountUp({ end, suffix, active }: { end: number; suffix: string; active: boolean }) {
