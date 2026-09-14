@@ -1,4 +1,4 @@
-```tsx
+
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans, DM_Sans } from 'next/font/google';
@@ -77,4 +77,3 @@ export default function RootLayout({
     </html>
   );
 }
-```
