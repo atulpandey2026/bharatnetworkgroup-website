@@ -1,3 +1,4 @@
+```tsx
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Plus_Jakarta_Sans, DM_Sans } from 'next/font/google';
@@ -24,18 +25,37 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  ),
+
   title: 'Bharat Network Group — One Vision. Many Voices. One Network.',
-  description: 'BNG unifies 7 purpose-driven brands across media, events, IT, smart wearables, and education — empowering Bharat\'s enterprises through one integrated ecosystem.',
+
+  description:
+    'BNG unifies 10 purpose-driven brands across media, events, IT, smart wearables, and education — empowering Bharat\'s enterprises through one integrated ecosystem.',
+
   icons: {
     icon: [
-      { url: '/assets/images/app_logo.png', type: 'image/png' }
+      {
+        url: '/assets/images/favicon.png',
+        type: 'image/png',
+      },
     ],
   },
+
   openGraph: {
     title: 'Bharat Network Group — One Vision. Many Voices.',
-    description: 'India\'s multi-vertical catalyst for self-reliant growth across media, events, IT, and education.',
-    images: [{ url: '/assets/images/app_logo.png', width: 1200, height: 630 }],
+
+    description:
+      'India\'s multi-vertical catalyst for self-reliant growth across media, events, IT, and education.',
+
+    images: [
+      {
+        url: '/assets/images/app_logo.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
 };
 
@@ -45,12 +65,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakartaSans.variable} ${dmSans.variable}`}>
+    <html
+      lang="en"
+      className={`${plusJakartaSans.variable} ${dmSans.variable}`}
+    >
       <body className={dmSans.className}>
         <AuthProvider>
           {children}
         </AuthProvider>
-</body>
+      </body>
     </html>
   );
 }
+```
