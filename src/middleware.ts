@@ -1,21 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-function getProjectRef(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  return url.match(/https:\/\/([^.]+)\./)?.[1] ?? '';
-}
-
-function injectTokenFromHeader(request: NextRequest): void {
-  const token = request.headers.get('x-sb-token');
-  if (!token) return;
-  const hasCookie = request.cookies.getAll().some((c) => c.name.includes('auth-token'));
-  if (hasCookie) return;
-  request.cookies.set(`sb-${getProjectRef()}-auth-token`, token);
-}
-
 export async function middleware(request: NextRequest) {
-  injectTokenFromHeader(request);
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -40,23 +26,24 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /admin routes (except /admin/login and /admin/2fa-verify)
-  if (
-    request.nextUrl.pathname.startsWith('/admin') &&
-    !request.nextUrl.pathname.startsWith('/admin/login') &&
-    !request.nextUrl.pathname.startsWith('/admin/2fa-verify')
-  ) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/admin/login';
-      return NextResponse.redirect(url);
-    }
+  const pathname = request.nextUrl.pathname;
+  const isAdmin = pathname.startsWith('/admin');
+  const isLogin = pathname === '/admin/login';
+  const isTwoFactorVerify = pathname === '/admin/2fa-verify';
+
+  // Protect admin routes except login and 2FA verification.
+  if (isAdmin && !isLogin && !isTwoFactorVerify && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin/login';
+    url.search = '';
+    return NextResponse.redirect(url);
   }
 
-  // Redirect logged-in users away from /admin/login
-  if (request.nextUrl.pathname === '/admin/login' && user) {
+  // A valid session should not remain on the login page.
+  if (isLogin && user) {
     const url = request.nextUrl.clone();
     url.pathname = '/admin';
+    url.search = '';
     return NextResponse.redirect(url);
   }
 

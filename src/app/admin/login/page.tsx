@@ -15,33 +15,34 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setError('');
     setLoading(true);
 
     try {
-      await signIn(email, password);
-
-      // Check if MFA is required
+      const data = await signIn(email.trim(), password);
       const supabase = createClient();
-      const { data: assuranceData } =
-        await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 
-      // If user has MFA enrolled but current session is only AAL1,
-      // redirect to verify
-      if (
-        assuranceData?.nextLevel === 'aal2' &&
-        assuranceData?.currentLevel !== 'aal2'
-      ) {
-        router.push('/admin/2fa-verify');
-        return;
+      // MFA is optional. If the account has a verified TOTP factor and
+      // the session is still AAL1, send the user to the verification page.
+      try {
+        const { data: assuranceData, error: assuranceError } =
+          await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+        if (!assuranceError &&
+            assuranceData?.nextLevel === 'aal2' &&
+            assuranceData?.currentLevel !== 'aal2') {
+          router.replace('/admin/2fa-verify');
+          return;
+        }
+      } catch {
+        // Do not block a normal login if the optional MFA check fails.
       }
 
-      // Log login action after successful sign-in
+      // Audit logging is deliberately non-blocking.
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
+        const user = data?.user;
         if (user) {
           const profile = await supabase
             .from('user_profiles')
@@ -63,14 +64,15 @@ export default function AdminLoginPage() {
           }
         }
       } catch {
-        // Silently ignore audit log errors
+        // Ignore audit logging failures during authentication.
       }
 
-      router.push('/admin');
+      // Give the browser auth state a moment to persist the session cookie,
+      // then navigate. replace() avoids returning to the login page via Back.
+      router.replace('/admin');
       router.refresh();
     } catch (err: any) {
       setError(err?.message || 'Invalid credentials. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -78,72 +80,51 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-[#0D0B09] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-
-        {/* Logo / Brand */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 rounded-xl bg-[#E05A1E] flex items-center justify-center">
               <span className="text-white font-bold text-lg">B</span>
             </div>
-
-            <span className="text-white font-bold text-xl tracking-tight">
-              BNG Admin
-            </span>
+            <span className="text-white font-bold text-xl tracking-tight">BNG Admin</span>
           </div>
-
-          <h1 className="text-white text-2xl font-bold mb-1">
-            Welcome back
-          </h1>
-
-          <p className="text-white/50 text-sm">
-            Sign in to manage your website content
-          </p>
+          <h1 className="text-white text-2xl font-bold mb-1">Welcome back</h1>
+          <p className="text-white/50 text-sm">Sign in to manage your website content</p>
         </div>
 
-        {/* Login Card */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Email */}
             <div>
-              <label className="block text-white/70 text-sm font-medium mb-2">
-                Email
-              </label>
-
+              <label className="block text-white/70 text-sm font-medium mb-2">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
+                autoComplete="username"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E05A1E] focus:ring-1 focus:ring-[#E05A1E] transition-colors"
               />
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-white/70 text-sm font-medium mb-2">
-                Password
-              </label>
-
+              <label className="block text-white/70 text-sm font-medium mb-2">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
+                autoComplete="current-password"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#E05A1E] focus:ring-1 focus:ring-[#E05A1E] transition-colors"
               />
             </div>
 
-            {/* Error */}
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
                 {error}
               </div>
             )}
 
-            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
@@ -154,7 +135,6 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="text-center text-white/30 text-xs mt-6">
           © {new Date().getFullYear()} Bharat Network Group. All rights reserved.
         </p>
