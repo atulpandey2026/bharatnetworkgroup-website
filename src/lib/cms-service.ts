@@ -1,126 +1,96 @@
-      .from('team_members')
+import { createClient } from '@/lib/supabase/client';
+
+function isSchemaError(error: any): boolean {
+  if (!error) return false;
+  if (error.code && typeof error.code === 'string') {
+    const errorClass = error.code.substring(0, 2);
+    if (errorClass === '42') return true;
+    if (errorClass === '23') return false;
+    if (errorClass === '08') return true;
+  }
+  if (error.message) {
+    const patterns = [
+      /relation.*does not exist/i,
+      /column.*does not exist/i,
+      /function.*does not exist/i,
+      /syntax error/i,
+      /type.*does not exist/i,
+    ];
+    return patterns.some((p) => p.test(error.message));
+  }
+  return false;
+}
+
+// ─── Hero Images ────────────────────────────────────────────────────────────
+
+export const heroService = {
+  async getAll() {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('hero_images')
       .select('*')
-      .eq('member_status', 'active')
-      .order('display_order', { ascending: true });
+      .order('created_at', { ascending: false });
     if (error) { if (isSchemaError(error)) throw error; return []; }
     return data || [];
   },
 
-  async create(payload: {
-    name: string;
-    designation: string;
-    company?: string;
-    profile_image_url?: string;
-    bio?: string;
-    linkedin_url?: string;
-    display_order?: number;
-    member_status?: string;
-  }) {
+  async getActive() {
     const supabase = createClient();
-    const { data, error } = await supabase.from('team_members').insert(payload).select().single();
+    const { data, error } = await supabase
+      .from('hero_images')
+      .select('*')
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+    if (error) { if (isSchemaError(error)) throw error; return null; }
+    return data;
+  },
+
+  async create(payload: { image_url: string; alt_text: string; is_active?: boolean }) {
+    const supabase = createClient();
+    if (payload.is_active) {
+      await supabase.from('hero_images').update({ is_active: false }).eq('is_active', true);
+    }
+    const { data, error } = await supabase.from('hero_images').insert(payload).select().single();
     if (error) throw error;
     return data;
   },
 
-  async update(id: string, payload: any) {
+  async setActive(id: string) {
     const supabase = createClient();
+    await supabase.from('hero_images').update({ is_active: false }).eq('is_active', true);
     const { data, error } = await supabase
-      .from('team_members')
-      .update(payload)
+      .from('hero_images')
+      .update({ is_active: true })
       .eq('id', id)
-      .select('*')
-      .maybeSingle();
-
-    if (error) {
-      console.error('Team member update failed:', error);
-      throw new Error(`Unable to update team member: ${error.message}`);
-    }
-
-    if (!data) {
-      throw new Error(
-        'Team member was not updated. Check that the record exists and your Supabase account has permission to update it.'
-      );
-    }
-
+      .select()
+      .single();
+    if (error) throw error;
     return data;
   },
 
   async delete(id: string) {
     const supabase = createClient();
-    const { error } = await supabase.from('team_members').delete().eq('id', id);
+    const { error } = await supabase.from('hero_images').delete().eq('id', id);
     if (error) throw error;
   },
 };
 
-// ─── Storage ─────────────────────────────────────────────────────────────────
-// ─── Storage ─────────────────────────────────────────────────────────────────
 
-export const storageService = {
-  async upload(bucket: string, path: string, file: File): Promise<string> {
+
+
+
+// ─── About Images ────────────────────────────────────────────────────────────
+
+export const aboutService = {
+  async getAll() {
     const supabase = createClient();
 
-    // Check whether the user has an active Supabase session
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
-
-    if (sessionError) {
-      throw new Error(
-        `Authentication error: ${sessionError.message}`
-      );
-    }
-
-    if (!session) {
-      throw new Error(
-        'No active Supabase session. Please logout and login again.'
-      );
-    }
-
-    const ext =
-      file.name.split('.').pop()?.toLowerCase() || 'jpg';
-
-    const fileName = `${path}/${Date.now()}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    const { data, error } = await supabase
+      .from('about_images')
+      .select('*')
+      .order('created_at', { ascending: false });
 
     if (error) {
-      throw new Error(
-        `Storage upload failed: ${error.message}`
-      );
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(fileName);
-
-    return publicUrl;
-  },
-
-  async deleteByUrl(bucket: string, url: string) {
-    const supabase = createClient();
-
-    const path = url.split(
-      `/storage/v1/object/public/${bucket}/`
-    )[1];
-
-    if (!path) return;
-
-    const { error } = await supabase.storage
-      .from(bucket)
-      .remove([path]);
-
-    if (error) {
-      throw new Error(
-        `Storage delete failed: ${error.message}`
-      );
-    }
-  },
-};
+      if (isSchemaError(error)) throw error;
+      return [];
